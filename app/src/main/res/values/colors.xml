@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#0A84FF</color>
+
+    <!-- Surfaces, following the iOS dark elevation scale. -->
+    <color name="bg">#000000</color>
+    <color name="surface">#1C1C1E</color>
+    <color name="surfaceRaised">#2C2C2E</color>
+    <color name="separator">#38383A</color>
+
+    <!-- Type -->
+    <color name="label">#FFFFFF</color>
+    <color name="labelSecondary">#8E8E93</color>
+    <color name="labelTertiary">#636366</color>
+
+    <!-- iOS dark system colours, used for gauge states. -->
+    <color name="stateNormal">#30D158</color>
+    <color name="stateInfo">#0A84FF</color>
+    <color name="stateWarn">#FFD60A</color>
+    <color name="stateHigh">#FF9F0A</color>
+    <color name="stateAlert">#FF453A</color>
+    <color name="stateIdle">#48484A</color>
+    <color name="gaugeNeutral">#F2F2F7</color>
+    <color name="track">#2A2A2C</color>
+
+    <!-- Kept for the tabs still running the original gauges. -->
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#000000</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="color1">#30D158</color>
+    <color name="color2">#FFD60A</color>
+    <color name="color3">#FF9F0A</color>
+    <color name="color4">#FF453A</color>
+</resources>

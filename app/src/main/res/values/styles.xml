@@ -1,0 +1,33 @@
+<resources>
+
+    <style name="MyMaterialTheme" parent="MyMaterialTheme.Base" />
+
+    <style name="MyMaterialTheme.Base" parent="Theme.AppCompat.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+    </style>
+
+
+    <style name="SegmentedTabText" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.06</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
+
+    <style name="InfoDialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">@color/surface</item>
+        <item name="android:textColorPrimary">@color/label</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowMinWidthMajor">52%</item>
+        <item name="android:windowMinWidthMinor">52%</item>
+    </style>
+
+</resources>

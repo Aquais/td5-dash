@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GaugeView">
+        <attr name="gaugeMin" format="float" />
+        <attr name="gaugeMax" format="float" />
+        <attr name="gaugeDecimals" format="integer" />
+        <attr name="gaugeUnit" format="string" />
+        <attr name="gaugeCaption" format="string" />
+        <attr name="gaugeHero" format="boolean" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,92 @@
+package com.mooo.hairyone.td5tester.fragments;
+
+import android.view.View;
+
+import com.mooo.hairyone.td5tester.Conversions;
+import com.mooo.hairyone.td5tester.Log4jHelper;
+import com.mooo.hairyone.td5tester.R;
+import com.mooo.hairyone.td5tester.Settings;
+import com.mooo.hairyone.td5tester.events.DashboardEvent;
+import com.mooo.hairyone.td5tester.views.GaugeInfoSheet;
+import com.mooo.hairyone.td5tester.views.GaugeView;
+
+import org.apache.log4j.Logger;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+public class TemperatureAndPressureFragment extends BaseFragment {
+
+    Logger log = Log4jHelper.getLogger(this.getClass());
+
+    GaugeView gACC_TRACK_1, gACC_TRACK_2, gACC_TRACK_3, gACC_SUPPLY;
+    GaugeView gAMBIENT_PRESSURE, gFUEL_TEMP, gINLET_TEMP, gEXTERNAL_TEMP;
+
+    public TemperatureAndPressureFragment() { /* Required empty public constructor */ }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDashboardEvent(DashboardEvent event) {
+        float value = (float) event.value;
+        switch (event.data_type) {
+            case ACC_TRACK_1:       gACC_TRACK_1.setValue(value); break;
+            case ACC_TRACK_2:       gACC_TRACK_2.setValue(value); break;
+            case ACC_TRACK_3:       gACC_TRACK_3.setValue(value); break;
+            case ACC_SUPPLY:
+                gACC_SUPPLY.setValue((float) Conversions.pedalPercent(value));
+                break;
+            case AMBIENT_PRESSURE:  gAMBIENT_PRESSURE.setValue(value); break;
+            case FUEL_TEMP:         gFUEL_TEMP.setValue(value); break;
+            case INLET_TEMP:        gINLET_TEMP.setValue(value); break;
+            case EXTERNAL_TEMP: {
+                double outside = Conversions.externalTemperatureOrNoReading(value);
+                if (Conversions.isNoReading(outside)) gEXTERNAL_TEMP.clearValue();
+                else gEXTERNAL_TEMP.setValue((float) outside);
+                break;
+            }
+        }
+    }
+
+    private void applyBands() {
+        float none = Float.NEGATIVE_INFINITY;
+        float lo = s("track_alert_low"), wl = s("track_warn_low");
+        float wh = s("track_warn_high"), hi = s("track_alert_high");
+        gACC_TRACK_1.setBands(lo, wl, wh, hi);
+        gACC_TRACK_2.setBands(lo, wl, wh, hi);
+        gACC_TRACK_3.setBands(lo, wl, wh, hi);
+        gFUEL_TEMP.setBands(none, none, s("fuel_warn"), s("fuel_alert"));
+        gINLET_TEMP.setBands(none, none, s("inlet_warn"), s("inlet_alert"));
+    }
+
+    private float s(String key) {
+        return Settings.get(requireContext(), key);
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        if (gACC_TRACK_1 != null) applyBands();
+    }
+
+    @Override protected int getFragmentLayout() { return R.layout.temperature_and_pressure_fragment; }
+
+    @Override protected void bindViews(View view) {
+        gACC_TRACK_1 = view.findViewById(R.id.gACC_TRACK_1);
+        gACC_TRACK_2 = view.findViewById(R.id.gACC_TRACK_2);
+        gACC_TRACK_3 = view.findViewById(R.id.gACC_TRACK_3);
+        gACC_SUPPLY = view.findViewById(R.id.gACC_SUPPLY);
+        gAMBIENT_PRESSURE = view.findViewById(R.id.gAMBIENT_PRESSURE);
+        gFUEL_TEMP = view.findViewById(R.id.gFUEL_TEMP);
+        gINLET_TEMP = view.findViewById(R.id.gINLET_TEMP);
+        gEXTERNAL_TEMP = view.findViewById(R.id.gEXTERNAL_TEMP);
+
+        applyBands();
+
+        gACC_TRACK_1.setInfo(getString(R.string.t_track), getString(R.string.i_track));
+        gACC_TRACK_2.setInfo(getString(R.string.t_track), getString(R.string.i_track));
+        gACC_TRACK_3.setInfo(getString(R.string.t_track), getString(R.string.i_track));
+        gACC_SUPPLY.setInfo(getString(R.string.t_pedal), getString(R.string.i_pedal));
+        gAMBIENT_PRESSURE.setInfo(getString(R.string.t_ambient), getString(R.string.i_ambient));
+        gFUEL_TEMP.setInfo(getString(R.string.t_fuel), getString(R.string.i_fuel));
+        gINLET_TEMP.setInfo(getString(R.string.t_inlet), getString(R.string.i_inlet));
+        gEXTERNAL_TEMP.setInfo(getString(R.string.t_outside), getString(R.string.i_outside));
+        GaugeInfoSheet.attach(gACC_TRACK_1, gACC_TRACK_2, gACC_TRACK_3, gACC_SUPPLY, gAMBIENT_PRESSURE, gFUEL_TEMP, gINLET_TEMP, gEXTERNAL_TEMP);
+    }
+}
