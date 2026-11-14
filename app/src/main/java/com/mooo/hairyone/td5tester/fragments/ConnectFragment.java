@@ -87,6 +87,12 @@ public class ConnectFragment extends BaseFragment {
     private ArrayList<String> mInfoLines = new ArrayList<String>();
     boolean mFakeUsbDeviceConnection = false;
 
+    // The app connects on its own; this only tracks a deliberate disconnect,
+    // so tapping the button off does not immediately reconnect.
+    private boolean mUserDisconnected = false;
+    private final java.util.concurrent.atomic.AtomicBoolean mConnecting =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -101,6 +107,8 @@ public class ConnectFragment extends BaseFragment {
         if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
             mUsbDevice = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             Util.log_msg(String.format("usb_attached=%s", mUsbDevice.getProductName()));
+            mUserDisconnected = false;
+            autoConnect();
         }
         if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
             UsbDevice usbDevice = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -126,6 +134,7 @@ public class ConnectFragment extends BaseFragment {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         ContextCompat.registerReceiver(getActivity(), mBroadcastReceiver, filter,
                 ContextCompat.RECEIVER_NOT_EXPORTED);
+        autoConnect();
     }
 
     @Override
@@ -242,19 +251,50 @@ public class ConnectFragment extends BaseFragment {
    }
 
     public void connectHandler(View view) {
-        Thread thread = new Thread(new Runnable() {
-            @Override public void run() {
-                if (mUsbDeviceConnection != null || mFakeUsbDeviceConnection) {
-                    stopDashboard();
-                    usb_close();
-                } else {
-                    usb_open();
-                    fast_init();
-                    startDashboard();
-                }
+        if (mUsbDeviceConnection != null || mFakeUsbDeviceConnection) {
+            mUserDisconnected = true;
+            new Thread(() -> {
+                stopDashboard();
+                usb_close();
+            }).start();
+        } else {
+            mUserDisconnected = false;
+            connect();
+        }
+    }
+
+    private void connect() {
+        if (!mConnecting.compareAndSet(false, true)) return;
+        new Thread(() -> {
+            try {
+                usb_open();
+                fast_init();
+                startDashboard();
+            } finally {
+                mConnecting.set(false);
             }
-        });
-        thread.start();
+        }).start();
+    }
+
+    /** Opens the link by itself when the cable is there, so the app lands on live data. */
+    private void autoConnect() {
+        if (mUserDisconnected) return;
+        if (mUsbDeviceConnection != null || mFakeUsbDeviceConnection) return;
+        if (Consts.DEBUG_UI) return;
+        if (!isAdded() || getActivity() == null) return;
+        if (findFtdiDevice() == null) return;
+        connect();
+    }
+
+    private UsbDevice findFtdiDevice() {
+        UsbManager manager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
+        if (manager == null) return null;
+        for (UsbDevice device : manager.getDeviceList().values()) {
+            if (device.getVendorId() == FTDI.VENDOR_ID && device.getProductId() == FTDI.PRODUCT_ID) {
+                return device;
+            }
+        }
+        return null;
     }
 
     /*    public void fastinitHandler() {

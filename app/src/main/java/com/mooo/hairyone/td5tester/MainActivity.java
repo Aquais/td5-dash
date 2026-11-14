@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
         // Seven fixed tabs do not fit a half-screen window.
         float widthDp = getResources().getConfiguration().screenWidthDp;
+        // The link opens on its own, so the app starts on the live gauges.
+        viewPager.setCurrentItem(1, false);
         tabLayout.setTabMode(widthDp < 700
                 ? com.google.android.material.tabs.TabLayout.MODE_SCROLLABLE
                 : com.google.android.material.tabs.TabLayout.MODE_FIXED);
